@@ -1,19 +1,24 @@
-# CODE ADAPTED FROM https://pythonprogramming.net/many-blob-objects-intermediate-python-tutorial/
+# CODE ADAPTED FROM:
+#   - https://pythonprogramming.net/many-blob-objects-intermediate-python-tutorial/
+#   - https://github.com/womogenes/GravitySim/blob/main/gravity.pde
 
 # as long as the relative masses are correct I can artificially increase the radius for visibility
+# if I scale the masses the same amount that I scale the distances... would it work? 
+# no, relative distances between planets are massive
 
 import pygame
 import random
 import math
 
 FPS = 960
-WIDTH = 800
-HEIGHT = 600
+WIDTH = 128
+HEIGHT = 128
+CENTER_X = WIDTH/2
+CENTER_Y = HEIGHT/2
 BLACK = (0,0,0)
 WHITE = (255,255,255)
 G = 0.01 # gravitational constant
 dt = 1 # timestep
-r = 2 # ?
 
 # --- HELPERS ---
 
@@ -90,8 +95,16 @@ def main():
     #     # vel = Vector(random.randrange(-3,3), random.randrange(-3,3))
     #     vel = Vector(0, 0)
     #     bodies.append(Body(pos, vel, random.randrange(0,50)))
-    bodies.append(Body(Vector(400,300), Vector(0,0), 50, 10))
-    bodies.append(Body(Vector(500,300), Vector(0,0.03), 5, 10))
+    bodies.append(Body(Vector(CENTER_X,CENTER_Y), Vector(0,0), 5, 332950)) # sun
+    # bodies.append(Body(Vector(CENTER_X+(0.3871*(400/31)), CENTER_Y), Vector(0,0.03), 1, 0.055)) # mercury
+    # bodies.append(Body(Vector(CENTER_X+(0.7223*(400/31)), CENTER_Y), Vector(0,0.03), 1, 0.815)) # venus
+    # bodies.append(Body(Vector(CENTER_X+(1*(400/31)), CENTER_Y), Vector(0,0.03), 1, 1)) # earth
+    bodies.append(Body(Vector(CENTER_X+60,CENTER_Y), Vector(0,0.03), 2, 8)) # mars
+    bodies.append(Body(Vector(CENTER_X+30,CENTER_Y), Vector(0,0.03), 2, 8)) # mars
+    # bodies.append(Body(Vector(650,300), Vector(0,0.03), 8, 20)) # jupiter
+    # bodies.append(Body(Vector(725,300), Vector(0,0.03), 15, 10)) # saturn
+    # bodies.append(Body(Vector(750,300), Vector(0,0.03), 12, 10)) # uranus
+    # bodies.append(Body(Vector(775,300), Vector(0,0.03), 12, 10)) # neptune
 
     while True:
         for event in pygame.event.get():
@@ -99,9 +112,10 @@ def main():
                 pygame.quit()
                 quit()
         game_display.fill(WHITE)
-        for body in bodies:
+        for body in bodies[1:]:
             body.move()
             pygame.draw.circle(game_display, BLACK, [body.pos.x, body.pos.y], body.radius)
+        pygame.draw.circle(game_display, BLACK, [bodies[0].pos.x, bodies[0].pos.y], bodies[0].radius)
         update_physics(bodies)
         pygame.display.update()
         clock.tick(FPS)
