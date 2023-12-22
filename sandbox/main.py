@@ -1,10 +1,12 @@
 # CODE ADAPTED FROM https://pythonprogramming.net/many-blob-objects-intermediate-python-tutorial/
 
+# as long as the relative masses are correct I can artificially increase the radius for visibility
+
 import pygame
 import random
 import math
 
-FPS = 240
+FPS = 960
 WIDTH = 800
 HEIGHT = 600
 BLACK = (0,0,0)
@@ -40,12 +42,13 @@ clock = pygame.time.Clock()
 
 class Body:
 
-    def __init__(self, pos, vel):
+    def __init__(self, pos, vel, radius, mass):
         self.pos = pos
         self.vel = vel
         self.next_pos = pos
         self.next_vel = vel
-        self.size = random.randrange(4,50)
+        self.radius = radius
+        self.mass = mass
 
     def move(self):
         self.pos = self.next_pos
@@ -60,9 +63,9 @@ class Body:
         if self.pos.y < 0: self.pos.y = 0
         elif self.pos.y > HEIGHT: self.pos.y = HEIGHT
 
-def gravityAcc(pos_a, pos_b, mass):
+def gravityAcc(pos_a, pos_b, radius, mass):
   dSq = distSquared(pos_a, pos_b);
-  if dSq <= (4 * r * r):
+  if dSq <= (4 * radius * radius):
     return Vector(0, 0)
   return mult(sub(pos_a, pos_b), dt * G * mass / (dSq * math.sqrt(dSq)))
 
@@ -71,7 +74,7 @@ def gravity(bodies):
         for b in bodies:
             if a == b:
                 continue
-            acc = gravityAcc(b.pos, a.pos, a.size)
+            acc = gravityAcc(b.pos, a.pos, a.radius, a.mass)
             a.next_vel.x += acc.x
             a.next_vel.y += acc.y
     return
@@ -82,11 +85,13 @@ def update_physics(bodies):
     
 def main():
     bodies = []
-    for _ in range(10):
-        pos = Vector(random.randrange(0,WIDTH), random.randrange(0,HEIGHT))
-        # vel = Vector(random.randrange(-3,3), random.randrange(-3,3))
-        vel = Vector(0, 0)
-        bodies.append(Body(pos, vel))
+    # for _ in range(10):
+    #     pos = Vector(random.randrange(0,WIDTH), random.randrange(0,HEIGHT))
+    #     # vel = Vector(random.randrange(-3,3), random.randrange(-3,3))
+    #     vel = Vector(0, 0)
+    #     bodies.append(Body(pos, vel, random.randrange(0,50)))
+    bodies.append(Body(Vector(400,300), Vector(0,0), 50, 10))
+    bodies.append(Body(Vector(500,300), Vector(0,0.03), 5, 10))
 
     while True:
         for event in pygame.event.get():
@@ -96,7 +101,7 @@ def main():
         game_display.fill(WHITE)
         for body in bodies:
             body.move()
-            pygame.draw.circle(game_display, BLACK, [body.pos.x, body.pos.y], body.size)
+            pygame.draw.circle(game_display, BLACK, [body.pos.x, body.pos.y], body.radius)
         update_physics(bodies)
         pygame.display.update()
         clock.tick(FPS)
