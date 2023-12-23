@@ -7,10 +7,9 @@
 # no, relative distances between planets are massive
 
 import pygame
-import random
 import math
 
-FPS = 960
+FPS = 240
 WIDTH = 128
 HEIGHT = 128
 CENTER_X = WIDTH/2
@@ -19,6 +18,7 @@ BLACK = (0,0,0)
 WHITE = (255,255,255)
 G = 0.01 # gravitational constant
 dt = 1 # timestep
+UNIT=64/32
 
 # --- HELPERS ---
 
@@ -62,11 +62,11 @@ class Body:
         self.next_pos.x += self.vel.x
         self.next_pos.y += self.vel.y
 
-        if self.pos.x < 0: self.pos.x = 0
-        elif self.pos.x > WIDTH: self.pos.x = WIDTH
-        
-        if self.pos.y < 0: self.pos.y = 0
-        elif self.pos.y > HEIGHT: self.pos.y = HEIGHT
+        if self.pos.x < 0: self.vel.x = (-self.vel.x)
+        elif self.pos.x > WIDTH: self.vel.x = (-self.vel.x)
+
+        if self.pos.y < 0: self.vel.y = (-self.vel.y)
+        elif self.pos.y > HEIGHT: self.vel.y = (-self.vel.y)
 
 def gravityAcc(pos_a, pos_b, radius, mass):
   dSq = distSquared(pos_a, pos_b);
@@ -90,32 +90,38 @@ def update_physics(bodies):
     
 def main():
     bodies = []
-    # for _ in range(10):
-    #     pos = Vector(random.randrange(0,WIDTH), random.randrange(0,HEIGHT))
-    #     # vel = Vector(random.randrange(-3,3), random.randrange(-3,3))
-    #     vel = Vector(0, 0)
-    #     bodies.append(Body(pos, vel, random.randrange(0,50)))
-    bodies.append(Body(Vector(CENTER_X,CENTER_Y), Vector(0,0), 5, 332950)) # sun
-    # bodies.append(Body(Vector(CENTER_X+(0.3871*(400/31)), CENTER_Y), Vector(0,0.03), 1, 0.055)) # mercury
-    # bodies.append(Body(Vector(CENTER_X+(0.7223*(400/31)), CENTER_Y), Vector(0,0.03), 1, 0.815)) # venus
-    # bodies.append(Body(Vector(CENTER_X+(1*(400/31)), CENTER_Y), Vector(0,0.03), 1, 1)) # earth
-    bodies.append(Body(Vector(CENTER_X+60,CENTER_Y), Vector(0,0.03), 2, 8)) # mars
-    bodies.append(Body(Vector(CENTER_X+30,CENTER_Y), Vector(0,0.03), 2, 8)) # mars
-    # bodies.append(Body(Vector(650,300), Vector(0,0.03), 8, 20)) # jupiter
-    # bodies.append(Body(Vector(725,300), Vector(0,0.03), 15, 10)) # saturn
-    # bodies.append(Body(Vector(750,300), Vector(0,0.03), 12, 10)) # uranus
-    # bodies.append(Body(Vector(775,300), Vector(0,0.03), 12, 10)) # neptune
+    # bodies.append(Body(Vector(CENTER_X,CENTER_Y), Vector(0,0), 5, 332950)) # sun
+    # bodies.append(Body(Vector(CENTER_X+(0.3871*UNIT), CENTER_Y), Vector(0,0.0), 2, 0.055)) # mercury
+    # bodies.append(Body(Vector(CENTER_X+(0.7223*UNIT), CENTER_Y), Vector(0,0.0), 2, 0.815)) # venus
+    # bodies.append(Body(Vector(CENTER_X+(1*UNIT), CENTER_Y), Vector(0,0.0), 2, 1)) # earth
+    # bodies.append(Body(Vector(CENTER_X+(1.52368055*UNIT),CENTER_Y), Vector(0,0.0), 2, 0.107)) # mars
+    # bodies.append(Body(Vector(CENTER_X+(5.2038*UNIT), CENTER_Y), Vector(0,0.0), 2, 317.8)) # jupiter
+    # bodies.append(Body(Vector(CENTER_X+(9.5826*UNIT), CENTER_Y), Vector(0,0.0), 2, 95.159)) # saturn
+    # bodies.append(Body(Vector(CENTER_X+(20.0965*UNIT), CENTER_Y), Vector(0,0.0), 2, 14.536)) # uranus
+    # bodies.append(Body(Vector(CENTER_X+(30.33*UNIT), CENTER_Y), Vector(0,0.0), 2, 17.147)) # neptune
+
+    # earth-moon-s/c system
+    # bodies.append(Body(Vector(CENTER_X,CENTER_Y), Vector(0,0), 8, 332950)) # earth
+    # bodies.append(Body(Vector(CENTER_X+44, CENTER_Y), Vector(0,0.0585), 3, 14.536)) # moon
+    # bodies.append(Body(Vector(CENTER_X+10, CENTER_Y), Vector(0,0.035), 1, 0.7)) # s/c
+
+    
+    # chaotic 3 body system
+    bodies.append(Body(Vector(CENTER_X,CENTER_Y+21), Vector(0,0.1), 5, 50)) # earth
+    bodies.append(Body(Vector(CENTER_X+24,CENTER_Y-10), Vector(0,-0.1), 5, 50)) # earth
+    bodies.append(Body(Vector(CENTER_X-23,CENTER_Y-10), Vector(0,0), 5, 50)) # earth
+
 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
-        game_display.fill(WHITE)
-        for body in bodies[1:]:
+        game_display.fill(BLACK)
+        for body in bodies:
             body.move()
-            pygame.draw.circle(game_display, BLACK, [body.pos.x, body.pos.y], body.radius)
-        pygame.draw.circle(game_display, BLACK, [bodies[0].pos.x, bodies[0].pos.y], bodies[0].radius)
+            pygame.draw.circle(game_display, WHITE, [body.pos.x, body.pos.y], body.radius)
+        pygame.draw.circle(game_display, WHITE, [bodies[0].pos.x, bodies[0].pos.y], bodies[0].radius)
         update_physics(bodies)
         pygame.display.update()
         clock.tick(FPS)
