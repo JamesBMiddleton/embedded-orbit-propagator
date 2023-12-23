@@ -20,7 +20,8 @@ WHITE = (255,255,255)
 G = 0.01 # gravitational constant
 dt = 1 # timestep
 UNIT = 64/32
-TRAIL_LENGTH = 600
+TRAIL_LENGTH = 1000
+RESTITUTION=0.8 # coefficient of restitution when hitting sides
 
 # --- HELPERS ---
 
@@ -65,11 +66,11 @@ class Body:
         self.next_pos.x += self.vel.x
         self.next_pos.y += self.vel.y
 
-        if self.next_pos.x < 0: self.vel.x = (-self.vel.x)/2
-        elif self.next_pos.x > WIDTH: self.vel.x = (-self.vel.x)/2
+        if self.next_pos.x < 0: self.vel.x = (-self.vel.x)*RESTITUTION
+        elif self.next_pos.x > WIDTH: self.vel.x = (-self.vel.x)*RESTITUTION
 
-        if self.next_pos.y < 0: self.vel.y = (-self.vel.y)/2
-        elif self.next_pos.y > HEIGHT: self.vel.y = (-self.vel.y)/2
+        if self.next_pos.y < 0: self.vel.y = (-self.vel.y)
+        elif self.next_pos.y > HEIGHT: self.vel.y = (-self.vel.y)
 
 
 def gravityAcc(pos_a, pos_b, radius, mass):
@@ -100,6 +101,9 @@ def main():
     bodies.append(Body(Vector(CENTER_X+24,CENTER_Y-10), Vector(0,-0.1), 5, 25)) 
     bodies.append(Body(Vector(CENTER_X-23,CENTER_Y-10), Vector(0,0), 5, 25))
 
+    # pygame.font.init()
+    # font = pygame.font.SysFont('Comic Sans MS', 20)
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -112,6 +116,10 @@ def main():
                 radius=(body.radius/TRAIL_LENGTH)*i
                 shade = (255/TRAIL_LENGTH)*i
                 pygame.draw.circle(game_display, (shade, shade, shade), [trail.x, trail.y], radius)
+        # text_surface = font.render('James Middleton', False, (255, 255, 255))
+        # game_display.blit(text_surface, (CENTER_X-50,CENTER_Y-20))
+        # text_surface = font.render('Software Engineer', False, (255, 255, 255))
+        # game_display.blit(text_surface, (CENTER_X-50,CENTER_Y))
         update_physics(bodies)
         pygame.display.update()
         clock.tick(FPS)
